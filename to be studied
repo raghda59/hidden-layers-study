@@ -1,0 +1,20 @@
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM
+
+# Define the model
+model = Sequential()
+
+# Input layer (input_shape should match your feature dimensions)
+model.add(LSTM(units=10, return_sequences=True, input_shape=(timesteps, features)))
+# The 'return_sequences=True' parameter ensures that the output of this layer is sequences, not just the final output of the LSTM
+
+# Additional hidden LSTM layers (you can add more if needed)
+model.add(LSTM(units=15, return_sequences=True))
+model.add(LSTM(units=8, return_sequences=True))
+
+# Output layer (units should match your output dimensionality, e.g., 1 for regression)
+model.add(LSTM(units=1))
+
+# Compile the model
+model.compile(optimizer='adam', loss='mean_squared_error')  # Use mean squared error for regression tasks
