@@ -1,0 +1,61 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+# Define the model 
+class CustomMultiStreamModel(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        super(CustomMultiStreamModel, self).__init__()
+        self.streams = nn.ModuleList([nn.Sequential(
+            nn.RNN(input_size, hidden_size, batch_first=True),
+            nn.BatchNorm1d(hidden_size),
+            nn.ReLU()
+        ) for _ in range(input_size)])
+        
+        self.fusion_layer = nn.Linear(hidden_size * input_size, hidden_size)
+        self.fc = nn.Linear(hidden_size, 1)
+
+    def forward(self, X):
+        # Process each stream independently
+        stream_outputs = [stream(X[:, :, i:i+1]) for i, stream in enumerate(self.streams)]
+        # Concatenate stream outputs along the feature dimension
+        concatenated_outputs = torch.cat(stream_outputs, dim=-1)
+        
+        # Fusion Layer
+        fused_output = self.fusion_layer(concatenated_outputs)
+        
+        # Fully Connected Layer
+        output = self.fc(fused_output)
+        return output
+
+
+input_size = 25  # Number of streams
+hidden_size = 64  #to be adgusted 
+model = CustomMultiStreamModel(input_size, hidden_size)
+criterion = nn.MSELoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+# data to be adgusted later 
+batch_size = later on 
+sequence_length = later on 
+num_streams = 25
+X = torch.randn(batch_size, sequence_length, num_streams)
+
+# Target values (for demonstration purposes)
+targets = torch.randn(batch_size, 1)
+
+# Training process 
+num_epochs = 100
+for epoch in range(num_epochs):
+    model.train()
+    optimizer.zero_grad()
+    
+    # Forward probagation 
+    outputs = model(X)
+    loss = criterion(outputs, targets)
+    
+    # Backward probagation 
+    loss.backward()
+    optimizer.step()
+    
+    print('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, loss.item()))
