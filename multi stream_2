@@ -31,14 +31,14 @@ class CustomMultiStreamModel(nn.Module):
         output = self.fc(lstm_output)
         return output
 
-# Example usage
+
 input_size = to be adjusted 
 hidden_size = to be adjusted 
 model = CustomMultiStreamModel(input_size, hidden_size)
 criterion = nn.MSELoss() 
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)  # to update wheights 
 
-# batches of inputs (X1, X2, X3) and targets
+
 for epoch in range(num_epochs):
     for batch_idx, (X1, X2, X3, targets) in enumerate(train_loader):
         optimizer.zero_grad()
