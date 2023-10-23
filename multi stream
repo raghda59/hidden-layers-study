@@ -44,7 +44,7 @@ def forward(self, X1, X2, X3):
  return output1, output2, output3
 
  # define data loader 
-#####
+
 # initialization step 
 input_size =   # Adjust the number
 hidden_size =  # Adjust the number
