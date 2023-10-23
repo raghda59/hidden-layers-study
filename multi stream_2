@@ -1,0 +1,51 @@
+import torch
+import torch.nn as nn
+
+class CustomMultiStreamModel(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        super(CustomMultiStreamModel, self).__init__()
+        self.conv = nn.Conv1d(input_size, hidden_size, kernel_size=3, stride=1, padding=1)
+        self.batch_norm = nn.BatchNorm1d(hidden_size)
+        self.relu = nn.ReLU()
+        self.lstm = nn.LSTM(hidden_size, hidden_size)
+        self.fc = nn.Linear(hidden_size, 1)
+        def forward(self, X1, X2, X3):  # Assuming X1, X2, X3 are inputs from different sources
+        # Forward propagation through each stream
+        conv_output1 = self.conv(X1)
+        conv_output2 = self.conv(X2)
+        conv_output3 = self.conv(X3)
+        
+        # BN, ReLU
+        conv_output1 = self.relu(self.batch_norm(conv_output1))
+        conv_output2 = self.relu(self.batch_norm(conv_output2))
+        conv_output3 = self.relu(self.batch_norm(conv_output3))
+        
+        # concatenation
+        concatenated_output = torch.cat((conv_output1, conv_output2, conv_output3), dim=1)
+        
+        # LSTM Layer
+        lstm_output, _ = self.lstm(concatenated_output.permute(2, 0, 1))
+        lstm_output = lstm_output[-1]  # Take the output from the last time step
+        
+        # FC
+        output = self.fc(lstm_output)
+        return output
+
+# Example usage
+input_size = to be adjusted 
+hidden_size = to be adjusted 
+model = CustomMultiStreamModel(input_size, hidden_size)
+criterion = nn.MSELoss() 
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)  # to update wheights 
+
+# batches of inputs (X1, X2, X3) and targets
+for epoch in range(num_epochs):
+    for batch_idx, (X1, X2, X3, targets) in enumerate(train_loader):
+        optimizer.zero_grad()
+        outputs = model(X1, X2, X3)
+        loss = criterion(outputs, targets)
+        loss.backward()
+        optimizer.step()
+        
+        # to train the progress
+        print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, batch_idx+1, len(train_loader), loss.item()))
