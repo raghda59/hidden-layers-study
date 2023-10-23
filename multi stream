@@ -1,0 +1,72 @@
+# I am assuming 3 streams and noting that the flow following 𝑦𝑝𝑟𝑒𝑑=𝑓=𝐹𝑓𝑐(𝐹𝑙𝑠𝑡𝑚(𝑅𝑒𝐿𝑈(𝐵𝑁(𝐹𝑐𝑜𝑛𝑣(𝑋𝑖𝑛𝑝𝑢𝑡)))))
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+class CustomMultiStreamModel(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        super(CustomMultiStreamModel, self).__init__()
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+
+#define the streams
+ self.stream1 = nn.Sequential(
+            nn.Conv1d(input_size, hidden_size, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(hidden_size),
+            nn.ReLU(),
+            nn.LSTMCell(hidden_size, hidden_size),
+            nn.Linear(hidden_size, 1)
+        )
+        
+        self.stream2 = nn.Sequential(
+            nn.Conv1d(input_size, hidden_size, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(hidden_size),
+            nn.ReLU(),
+            nn.LSTMCell(hidden_size, hidden_size),
+            nn.Linear(hidden_size, 1)
+        )
+        
+        self.stream3 = nn.Sequential(
+            nn.Conv1d(input_size, hidden_size, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(hidden_size),
+            nn.ReLU(),
+            nn.LSTMCell(hidden_size, hidden_size),
+            nn.Linear(hidden_size, 1)
+        )
+
+def forward(self, X1, X2, X3):
+        # Forward propagation through three streams above defined 
+        output1 = self.stream1(X1.permute(0, 2, 1))
+        output2 = self.stream2(X2.permute(0, 2, 1))
+        output3 = self.stream3(X3.permute(0, 2, 1))
+
+
+ return output1, output2, output3
+
+ # define data loader 
+#####
+# initialization step 
+input_size =   # Adjust the number
+hidden_size =  # Adjust the number
+model = CustomMultiStreamModel(input_size, hidden_size) # due to the numbers above 
+criterion = nn.MSELoss()  # Mean Squared Error
+
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+# training step 
+num_epochs = 100  # to be adjusted 
+for epoch in range(num_epochs):
+    model.train()  
+    optimizer.zero_grad()
+# train loader is data loader 
+ for batch_idx, (X1, X2, X3, targets) in enumerate(train_loader):
+        output1, output2, output3 = model(X1, X2, X3)  # Forward pass
+
+ loss1 = criterion(output1, targets)  
+ loss2 = criterion(output2, targets)
+ loss3 = criterion(output3, targets)
+overall_loss = (loss1 + loss2 + loss3) / 3.0
+
+ overall_loss.backward()  # Backward pass
+        optimizer.step()  # Update weights
+
+print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, batch_idx+1, len(train_loader), overall_loss.item()))
